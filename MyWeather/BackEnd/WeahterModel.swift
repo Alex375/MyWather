@@ -36,6 +36,7 @@ struct WindModel: Decodable
 {
     let speed: Double
     let deg: Int
+    let gust: Double?
 }
 
 struct CloudModel: Decodable
@@ -53,7 +54,7 @@ struct SysModel: Decodable
 struct RainModel: Codable
 {
     let oneH: Double
-    let threeH: Double
+    let threeH: Double?
     
     enum CodingKeys: String, CodingKey {
         case oneH = "1h"
@@ -64,7 +65,7 @@ struct RainModel: Codable
 struct SnowModel: Codable
 {
     let oneH: Double
-    let threeH: Double
+    let threeH: Double?
     
     enum CodingKeys: String, CodingKey {
         case oneH = "1h"

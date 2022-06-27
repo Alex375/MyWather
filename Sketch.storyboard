@@ -38,7 +38,7 @@
                                 <rect key="frame" x="111" y="206" width="194" height="167"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" name="AccentColor"/>
-                                <imageReference key="image" image="cloud.sun.fill" catalog="system" renderingMode="original"/>
+                                <imageReference key="image" image="sun.max.fill" catalog="system" renderingMode="original"/>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="22°" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="anq-Xq-qtb">
                                 <rect key="frame" x="166" y="122" width="80" height="69"/>
@@ -349,8 +349,8 @@
     </scenes>
     <resources>
         <image name="cloud.rain.fill" catalog="system" width="125" height="128"/>
-        <image name="cloud.sun.fill" catalog="system" width="128" height="95"/>
         <image name="gear" catalog="system" width="128" height="119"/>
+        <image name="sun.max.fill" catalog="system" width="128" height="124"/>
         <image name="sunrise.fill" catalog="system" width="128" height="97"/>
         <image name="sunset.fill" catalog="system" width="128" height="97"/>
         <namedColor name="AccentColor">

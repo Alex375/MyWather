@@ -29,14 +29,14 @@ class SunGroup: UIView {
     lazy var sunriseImage: UIImageView = {
         let iv = UIImageView()
         iv.image = UIImage(systemName: "sunrise.fill")?
-            .withRenderingMode(.alwaysOriginal)
+            .withRenderingMode(.automatic)
         return iv
     }()
     
     lazy var sunsetImage: UIImageView = {
         let iv = UIImageView()
         iv.image = UIImage(systemName: "sunset.fill")?
-            .withRenderingMode(.alwaysOriginal)
+            .withRenderingMode(.automatic)
         return iv
     }()
     
@@ -44,17 +44,33 @@ class SunGroup: UIView {
     {
         super.init(frame: .zero)
         
+        let iconConfig = UIImage.SymbolConfiguration(paletteColors: [.systemBlue, .systemYellow])
+        
         addSubview(sunsetImage)
         addSubview(sunriseImage)
         addSubview(sunsetLabel)
         addSubview(sunriseLabel)
         
         sunriseLabel.leading(to: self)
-        sunsetImage.leadingToTrailing(of: sunsetLabel)
+        sunriseLabel.top(to: self)
+        sunriseLabel.bottom(to: self)
+        
+        sunriseImage.leadingToTrailing(of: sunriseLabel, offset: 3)
+        sunriseImage.top(to: self, offset: 6)
+        sunriseImage.bottom(to: self, offset: -6)
+        sunriseImage.widthAnchor.constraint(equalTo: sunriseImage.heightAnchor, multiplier: 1.4).isActive = true
         
         sunsetLabel.trailing(to: self)
-        sunsetImage.trailingToLeading(of: sunsetLabel)
+        sunsetLabel.top(to: self)
+        sunsetLabel.bottom(to: self)
         
+        sunsetImage.trailingToLeading(of: sunsetLabel, offset: -3)
+        sunsetImage.top(to: self, offset: 6)
+        sunsetImage.bottom(to: self, offset: -6)
+        sunsetImage.widthAnchor.constraint(equalTo: sunsetImage.heightAnchor, multiplier: 1.4).isActive = true
+        
+        sunsetImage.preferredSymbolConfiguration = iconConfig
+        sunriseImage.preferredSymbolConfiguration = iconConfig
         
     }
     

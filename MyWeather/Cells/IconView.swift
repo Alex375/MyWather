@@ -6,9 +6,13 @@
 //
 
 import UIKit
+import TinyConstraints
 
 class IconView: UIView {
 
+    var defaultConstrains: Constraints = Constraints()
+    var detailConstrains: Constraints = Constraints()
+    
     lazy var image: UIImageView = {
         let iv = UIImageView()
         return iv
@@ -20,7 +24,15 @@ class IconView: UIView {
         backgroundColor = .systemBlue
         addSubview(image)
         
-        image.edges(to: self, insets: .init(top: 40, left: 15, bottom: 40, right: 15))
+        
+        defaultConstrains.append(image.leading(to: self, offset: 15))
+        defaultConstrains.append(image.trailing(to: self, offset: -15))
+        
+        detailConstrains.append(image.trailing(to: self, offset: -5, isActive: false))
+        detailConstrains.append(image.leading(to: self, offset: 5, isActive: false))
+        
+        image.centerYToSuperview()
+        image.heightAnchor.constraint(equalTo: image.widthAnchor, multiplier: 0.86).isActive = true
     }
     
     required init?(coder: NSCoder) {

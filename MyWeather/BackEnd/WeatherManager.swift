@@ -27,7 +27,7 @@ func getWeather(location: CLLocationCoordinate2D, completion: @escaping(WeatherM
         "lat": String(location.latitude),
         "lon": String(location.longitude),
         "appid":apiKey,
-        "units": "metric"
+        "units": "metric",
     ]
     AF.request("https://api.openweathermap.org/data/2.5/weather", parameters: parmeters).responseDecodable(of: WeatherModel.self) { response in
         switch response.result{
@@ -37,4 +37,13 @@ func getWeather(location: CLLocationCoordinate2D, completion: @escaping(WeatherM
             print(fail.localizedDescription)
         }
     }
+    
+//    AF.request("https://api.openweathermap.org/data/2.5/weather", parameters: parmeters).responseJSON { respons in
+//        switch respons.result {
+//        case .success(let succes):
+//            print(succes)
+//        case .failure(let fail):
+//            print(fail)
+//        }
+//    }
 }

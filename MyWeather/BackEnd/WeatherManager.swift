@@ -47,3 +47,34 @@ func getWeather(location: CLLocationCoordinate2D, completion: @escaping(WeatherM
 //        }
 //    }
 }
+
+func getGeoCoding(city: String, completion: @escaping([CityModel]?, Error?) -> Void)
+{
+    let apiKey = getApiKey()
+    guard let apiKey = apiKey else {
+        return
+    }
+    let parameters = [
+        "q": city,
+        "limit": String(50),
+        "appid": apiKey
+    ]
+    AF.request("https://api.openweathermap.org/geo/1.0/direct", parameters: parameters).responseDecodable(of: [CityModel].self) { response in
+        switch response.result
+        {
+        case .success(let success):
+            completion(success, nil)
+        case .failure(let failure):
+            completion(nil, failure)
+        }
+    }
+//    AF.request("https://api.openweathermap.org/geo/1.0/direct", parameters: parameters).responseJSON { response in
+//        switch response.result
+//        {
+//        case .success(let success):
+//            print(success)
+//        case .failure(let failure):
+//            completion(nil, failure)
+//        }
+//    }
+}

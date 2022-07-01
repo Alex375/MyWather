@@ -32,7 +32,7 @@ class IconView: UIView {
         detailConstrains.append(image.leading(to: self, offset: 5, isActive: false))
         
         image.centerYToSuperview()
-        image.heightAnchor.constraint(equalTo: image.widthAnchor, multiplier: 0.86).isActive = true
+        image.heightAnchor.constraint(equalTo: image.widthAnchor, multiplier: 0.92).isActive = true
     }
     
     required init?(coder: NSCoder) {

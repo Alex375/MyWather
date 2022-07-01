@@ -17,11 +17,25 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         case `default`
     }
     
+    var contextProvider = CoreDataContextProvider(context: (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext, target: nil)
+    
     var presentingMode: PresentingMode = .default
     var defaultContraints: Constraints = Constraints()
     var detailsContraints: Constraints = Constraints()
     var rainOnConstraints: Constraint? = nil
     var rainOffConstrains: Constraint? = nil
+    
+    var lastWeather: WeatherModel?
+    var location: CLLocationCoordinate2D?
+    var currentLocation: Bool = true {
+        didSet {
+            locationButton.isHidden = currentLocation
+            DispatchQueue.main.async {
+                self.setUpStar()
+            }
+        }
+    }
+    var city: CityModel?
     
     let locationManager = CLLocationManager()
     
@@ -82,6 +96,18 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         return iv
     }()
     
+    lazy var locationButton: UIButton = {
+        let btn = UIButton()
+        btn.setImage(UIImage(systemName: "location.fill"), for: .normal)
+        return btn
+    }()
+    
+    lazy var starButton: UIButton = {
+        let btn = UIButton()
+        btn.setImage(UIImage(systemName: "star"), for: .normal)
+        return btn
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
@@ -103,7 +129,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         }
         
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: nil)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .search, target: self, action: #selector(presentSearche))
+        
+        navigationItem.leftBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "gear"), style: .plain, target: self, action: #selector(presentSettings))
         
         layoutViews()
         setUpGestureRecognizer()
@@ -118,8 +146,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             return
         }
         
-        
-        loadAndPopulate(location: locValue)
+        self.location = locValue
+        loadAndPopulate()
         
         
     }
@@ -137,6 +165,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         layoutWindGroup()
         layoutOtherGroup()
         layoutChevron()
+        layoutLocationButton()
+        layoutStarButton()
     }
     
     func layoutTempLabel()
@@ -239,6 +269,28 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         chevronImage.centerXToSuperview()
     }
     
+    func layoutLocationButton()
+    {
+        view.addSubview(locationButton)
+        locationButton.addTarget(self, action: #selector(currentLoc), for: .touchUpInside)
+        locationButton.isHidden = true
+        locationButton.top(to: view, view.safeAreaLayoutGuide.topAnchor, offset: 20)
+        locationButton.trailing(to: view, view.safeAreaLayoutGuide.trailingAnchor, offset: -10)
+        locationButton.size(.init(width: 30, height: 30))
+        locationButton.layer.cornerRadius = 15
+    }
+    
+    func layoutStarButton()
+    {
+        view.addSubview(starButton)
+        starButton.addTarget(self, action: #selector(starTrigger), for: .touchUpInside)
+        starButton.isHidden = true
+        starButton.top(to: view, view.safeAreaLayoutGuide.topAnchor, offset: 20)
+        starButton.leading(to: view, view.safeAreaLayoutGuide.leadingAnchor, offset: 10)
+        starButton.size(.init(width: 30, height: 30))
+        starButton.layer.cornerRadius = 15
+    }
+    
     //MARK: - Poulating methods
     func populateViews(weather: WeatherModel)
     {
@@ -262,22 +314,36 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         }
         else
         {
-            rainGroup.isHidden = true
 
             rainOffConstrains?.isActive = true
             rainOnConstraints?.isActive = false
         }
         UIView.animate(withDuration: 0.6) {
             self.view.layoutIfNeeded()
+        } completion: { _ in
+            if weather.rain == nil {
+                self.rainGroup.isHidden = true
+            }
         }
+        
 
         
     }
+    
 
-    func loadAndPopulate(location: CLLocationCoordinate2D)
+    func loadAndPopulate()
     {
+        if let city = city {
+            self.location = CLLocationCoordinate2D(
+                latitude: city.lat,
+                longitude: city.lon)
+        }
+        guard let location = location else {
+            return
+        }
         getWeather(location: location) { weather in
             self.populateViews(weather: weather)
+            self.lastWeather = weather
         }
     }
     
@@ -324,7 +390,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             iconView.defaultConstrains.activate()
             chevronImage.image = UIImage(systemName: "chevron.up")
             windGroup.setDetails(to: false, animate: animate)
-            otherGroup.isHidden = true
         }
         else {
             defaultContraints.deActivate()
@@ -340,12 +405,84 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         if animate {
             UIView.animate(withDuration: 0.6) {
                 self.view.layoutIfNeeded()
+            } completion: { _ in
+                if mode == .default
+                {
+                    self.otherGroup.isHidden = true
+                }
             }
         }
         else {
             view.layoutIfNeeded()
+            if mode == .default
+            {
+                otherGroup.isHidden = true
+            }
         }
+        
+        
         presentingMode = mode
+    }
+    
+    func setUpStar()
+    {
+        if currentLocation
+        {
+            starButton.isHidden = true
+            return
+        }
+        starButton.isHidden = false
+        guard let city = city else {
+            return
+        }
+
+        if contextProvider.isFavouriteCity(city: city)
+        {
+            starButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
+        }
+        else {
+            starButton.setImage(UIImage(systemName: "star"), for: .normal)
+        }
+    }
+    
+    //MARK: - Navigation
+    @objc func presentSettings(sender: Any?)
+    {
+        let vc = SettingsTableViewController(style: .insetGrouped)
+        present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
+    }
+    
+    @objc func presentSearche(sender: Any?)
+    {
+        let vc = SearchTableViewController()
+        vc.target = self
+        present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
+    }
+    
+    @objc func currentLoc(sender: Any?)
+    {
+        city = nil
+        location = nil
+        currentLocation = true
+        locationManager.startUpdatingLocation()
+    }
+    
+    @objc func starTrigger(sender: Any?)
+    {
+        guard let city = city else {
+            return
+        }
+
+        if contextProvider.isFavouriteCity(city: city)
+        {
+            contextProvider.deleteFavourite(favorite: city)
+            starButton.setImage(UIImage(systemName: "star"), for: .normal)
+        }
+        else
+        {
+            contextProvider.addFavourite(city: city)
+            starButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
+        }
     }
 }
 

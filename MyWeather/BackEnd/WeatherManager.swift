@@ -17,7 +17,7 @@ func getApiKey() -> String?
     return nil
 }
 
-func getWeather(location: CLLocationCoordinate2D, completion: @escaping(WeatherModel) -> Void)
+func getWeather(location: CLLocationCoordinate2D, completion: @escaping(WeatherModel?, Error?) -> Void)
 {
     let apiKey = getApiKey()
     guard let apiKey = apiKey else {
@@ -27,14 +27,15 @@ func getWeather(location: CLLocationCoordinate2D, completion: @escaping(WeatherM
         "lat": String(location.latitude),
         "lon": String(location.longitude),
         "appid":apiKey,
-        "units": "metric",
+        "units": UnitConverter.getApiUnitParam(),
+        "lang": "api.lang".localized
     ]
     AF.request("https://api.openweathermap.org/data/2.5/weather", parameters: parmeters).responseDecodable(of: WeatherModel.self) { response in
         switch response.result{
         case .success(let res):
-            completion(res)
+            completion(res, nil)
         case .failure(let fail):
-            print(fail.localizedDescription)
+            completion(nil, fail)
         }
     }
     
@@ -77,4 +78,38 @@ func getGeoCoding(city: String, completion: @escaping([CityModel]?, Error?) -> V
 //            completion(nil, failure)
 //        }
 //    }
+}
+
+func getForecast(location: CLLocationCoordinate2D, completion: @escaping(ForecastModel?, Error?) -> Void)
+{
+    let apiKey = getApiKey()
+    guard let apiKey = apiKey else {
+        return
+    }
+    let parameters = [
+        "lat": String(location.latitude),
+        "lon": String(location.longitude),
+        "appid":apiKey,
+        "units": UnitConverter.getApiUnitParam(),
+        "lang": "api.lang".localized
+    ]
+    
+    AF.request("https://api.openweathermap.org/data/2.5/forecast", parameters: parameters).responseDecodable(of: ForecastModel.self) { response in
+        switch response.result {
+        case .success(let success):
+            completion(success, nil)
+        case .failure(let failure):
+            completion(nil, failure)
+        }
+    }
+    
+//    AF.request("https://api.openweathermap.org/data/2.5/forecast", parameters: parameters).responseJSON { response in
+//            switch response.result
+//            {
+//            case .success(let success):
+//                print(success)
+//            case .failure(let failure):
+//                completion(failure)
+//            }
+//        }
 }

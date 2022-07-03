@@ -40,7 +40,7 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
         searchController.searchBar.delegate = self
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.searchController = searchController
-        navigationItem.title = "Search a city"
+        navigationItem.title = "search.title".localized
         
         tableView.register(UITableViewCell.self, forCellReuseIdentifier: "id")
         
@@ -60,6 +60,10 @@ class SearchTableViewController: UITableViewController, UISearchBarDelegate {
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return favourites.count
+    }
+    
+    override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
+        "search.favourties".localized
     }
 
     

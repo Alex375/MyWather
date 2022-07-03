@@ -17,7 +17,7 @@ class WindGroup: UIView {
     
     lazy var nameLabel: UILabel = {
         let lbl = UILabel()
-        lbl.text = "Wind"
+        lbl.text = "main.wind".localized
         lbl.font = UIFont(name: "AvenirNext", size: 20)
         lbl.textAlignment = .center
         return lbl
@@ -40,7 +40,7 @@ class WindGroup: UIView {
     }()
     
     lazy var gustLabel: TempLabel = {
-        let lbl = TempLabel(name: "Gust")
+        let lbl = TempLabel(name: "main.gust".localized)
         lbl.infoLabel.textColor = UIColor(named: "windColor")
         lbl.info = "-"
         lbl.infoLabel.trailing(to: lbl)
@@ -49,7 +49,7 @@ class WindGroup: UIView {
     }()
     
     lazy var degLabel: TempLabel = {
-        let lbl = TempLabel(name: "Direction")
+        let lbl = TempLabel(name: "main.direction".localized)
         lbl.infoLabel.textColor = UIColor(named: "windColor")
         lbl.infoLabel.trailing(to: lbl)
         lbl.nameLabel.trailing(to: lbl)
@@ -104,10 +104,11 @@ class WindGroup: UIView {
     
     func populate(wind: WindModel)
     {
-        speedLabel.text = String(Int(round(wind.speed * 1.943844))) + "kn"
-        directionLabel.text = degToDir(deg: wind.deg)
+        let suffix = UnitConverter.speedUnitSuffix()
+        speedLabel.text = String(UnitConverter.speed(speed: wind.speed)) + suffix
+        directionLabel.text = degToDir(deg: wind.deg).localized
         if let gust = wind.gust {
-            gustLabel.info = String(Int(round(gust * 1.943844))) + "kn"
+            gustLabel.info = String(UnitConverter.speed(speed: gust)) + suffix
         }
         degLabel.info = String(wind.deg) + "°"
     }

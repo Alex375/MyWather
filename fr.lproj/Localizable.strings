@@ -1,0 +1,53 @@
+/* 
+  Localizable.strings
+  MyWeather
+
+  Created by Alexandre Josien on 01/07/2022.
+  
+*/
+
+"main.feels_like"="Ressentis";
+"main.wind"="Vent";
+"main.direction"="Direction";
+"main.gust"="Rafales";
+"main.humidity"="Humidité";
+"main.pressure"="Pression";
+
+"search.title"="Rechercher une ville";
+"search.search"="Rechercher";
+"search.favourties"="Favorits";
+
+"settings.title"="Réglages";
+"settings.units"="Unitées";
+
+"mps.full"="Mètres/sec";
+"mph.full"="Mph";
+"kph.full"="Km/h";
+"knots.full"="Noeuds";
+
+"mps.suff"="m/sec";
+"mph.suff"="mph";
+"kph.suff"="km/h";
+"knots.suff"="nds";
+
+"N"="N";
+"NNE"="NNE";
+"NE"="NE";
+"ENE"="ENE";
+"E"="E";
+"ESE"="ESE";
+"SE"="SE";
+"SSE"="SSE";
+"S"="S";
+"SSW"="SSO";
+"SW"="SO";
+"WSW"="OSO";
+"W"="O";
+"WNW"="ONO";
+"NW"="NO";
+"NNW"="NNO";
+"N"="N";
+
+"main.lastHour"="Dernière heure";
+"main.last3Hour"="Dernière 3h";
+"api.lang"="fr";

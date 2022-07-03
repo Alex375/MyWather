@@ -16,13 +16,13 @@ class RainGroup: UIView {
     }()
     
     lazy var oneH: TempLabel = {
-        let lbl = TempLabel(name: "Last hour")
+        let lbl = TempLabel(name: "main.lastHour".localized)
         lbl.info = "-"
         return lbl
     }()
     
     lazy var threeH: TempLabel = {
-        let lbl = TempLabel(name: "Last 3h")
+        let lbl = TempLabel(name: "main.last3Hour".localized)
         lbl.info = "-"
         return lbl
     }()

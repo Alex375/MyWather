@@ -17,7 +17,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         case `default`
     }
     
+    
     var contextProvider = CoreDataContextProvider(context: (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext, target: nil)
+    
     
     var presentingMode: PresentingMode = .default
     var defaultContraints: Constraints = Constraints()
@@ -26,6 +28,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     var rainOffConstrains: Constraint? = nil
     
     var lastWeather: WeatherModel?
+    var lastForecast: ForecastModel?
     var location: CLLocationCoordinate2D?
     var currentLocation: Bool = true {
         didSet {
@@ -36,6 +39,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
     var city: CityModel?
+    var forceRefresh = false
     
     let locationManager = CLLocationManager()
     
@@ -108,12 +112,18 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         return btn
     }()
     
+    lazy var foreCast: ForecastGroup = {
+        let group = ForecastGroup()
+        return group
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         
         locationManager.requestAlwaysAuthorization()
         locationManager.requestWhenInUseAuthorization()
+        forceRefresh = true
         
         if CLLocationManager.locationServicesEnabled()
         {
@@ -147,7 +157,10 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         }
         
         self.location = locValue
-        loadAndPopulate()
+        if forceRefresh {
+            loadAndPopulate()
+            forceRefresh = false
+        }
         
         
     }
@@ -167,6 +180,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         layoutChevron()
         layoutLocationButton()
         layoutStarButton()
+        layoutForecastGroup()
     }
     
     func layoutTempLabel()
@@ -212,8 +226,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         view.addSubview(sunGroup)
         
         rainGroup.topToBottom(of: descrptionLabel, offset: 10)
-        rainGroup.leading(to: sunGroup)
-        rainGroup.trailing(to: sunGroup)
+        rainGroup.leading(to: sunGroup, offset: -10)
+        rainGroup.trailing(to: sunGroup, offset: 10)
         rainOnConstraints = rainGroup.height(110, isActive: false)
         
         rainOffConstrains = rainGroup.height(0)
@@ -291,17 +305,29 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         starButton.layer.cornerRadius = 15
     }
     
+    func layoutForecastGroup()
+    {
+        view.addSubview(foreCast)
+        foreCast.topToBottom(of: otherGroup, offset: 10)
+        foreCast.leading(to: sunGroup, offset: -10)
+        foreCast.trailing(to: sunGroup, offset: 10)
+        foreCast.isHidden = true
+        foreCast.layer.cornerRadius = 10
+        foreCast.height(150)
+    }
+    
     //MARK: - Poulating methods
     func populateViews(weather: WeatherModel)
     {
         navigationItem.title = weather.name
         temperatureLabel.text = String(Int(round(weather.main.temp))) + "°"
-        iconView.setImage(apiName: weather.weather[0].icon)
+        iconView.setImage(weather: weather.weather[0])
         descrptionLabel.text = String(weather.weather[0].description)
         temperatureGroup.populateLabels(main: weather.main)
         sunGroup.populateLabels(
             sunrise: weather.sys.sunrise,
-            sunset: weather.sys.sunset)
+            sunset: weather.sys.sunset,
+            offset: weather.timezone)
         windGroup.populate(wind: weather.wind)
         otherGroup.populate(main: weather.main)
         
@@ -314,9 +340,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         }
         else
         {
-
-            rainOffConstrains?.isActive = true
             rainOnConstraints?.isActive = false
+            rainOffConstrains?.isActive = true
         }
         UIView.animate(withDuration: 0.6) {
             self.view.layoutIfNeeded()
@@ -341,9 +366,29 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         guard let location = location else {
             return
         }
-        getWeather(location: location) { weather in
+        getWeather(location: location) { weather, error in
+            if let error = error {
+                let alert = UIAlertController(title: "Error", message: error.localizedDescription, preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "Ok", style: .default))
+                self.present(alert, animated: true)
+                return
+            }
+            guard let weather = weather else {
+                return
+            }
+
             self.populateViews(weather: weather)
             self.lastWeather = weather
+        }
+        getForecast(location: location) { forecast, error in
+            if let error = error {
+                print(error)
+            }
+            guard let forecast = forecast else {
+                return
+            }
+            self.lastForecast = forecast
+            self.foreCast.populate(forecast: forecast)
         }
     }
     
@@ -364,14 +409,14 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     {
         setPresentingMode(toMode: .details, animate: true)
         let imapct = UIImpactFeedbackGenerator(style: .light)
-        imapct.impactOccurred(intensity: 0.5)
+        imapct.impactOccurred(intensity: 0.8)
     }
     
     @objc func swipeDown(sender: Any?)
     {
         setPresentingMode(toMode: .default, animate: true)
         let imapct = UIImpactFeedbackGenerator(style: .light)
-        imapct.impactOccurred(intensity: 0.5)
+        imapct.impactOccurred(intensity: 0.8)
     }
     
     
@@ -400,6 +445,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             chevronImage.image = UIImage(systemName: "chevron.down")
             windGroup.setDetails(to: true, animate: animate)
             otherGroup.isHidden = false
+            foreCast.isHidden = false
         }
         
         if animate {
@@ -417,6 +463,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             if mode == .default
             {
                 otherGroup.isHidden = true
+                foreCast.isHidden = true
             }
         }
         
@@ -449,12 +496,13 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     @objc func presentSettings(sender: Any?)
     {
         let vc = SettingsTableViewController(style: .insetGrouped)
+        vc.target = self
         present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
     }
     
     @objc func presentSearche(sender: Any?)
     {
-        let vc = SearchTableViewController()
+        let vc = SearchTableViewController(style: .insetGrouped)
         vc.target = self
         present(UINavigationController(rootViewController: vc), animated: true, completion: nil)
     }
@@ -464,25 +512,40 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         city = nil
         location = nil
         currentLocation = true
+        forceRefresh = true
         locationManager.startUpdatingLocation()
     }
     
     @objc func starTrigger(sender: Any?)
     {
+        let notifcationGenrator = UINotificationFeedbackGenerator()
+        let impactGenerator = UIImpactFeedbackGenerator(style: .soft)
         guard let city = city else {
             return
         }
 
         if contextProvider.isFavouriteCity(city: city)
         {
+            impactGenerator.prepare()
             contextProvider.deleteFavourite(favorite: city)
             starButton.setImage(UIImage(systemName: "star"), for: .normal)
+            impactGenerator.impactOccurred()
         }
         else
         {
+            notifcationGenrator.prepare()
             contextProvider.addFavourite(city: city)
             starButton.setImage(UIImage(systemName: "star.fill"), for: .normal)
+            notifcationGenrator.notificationOccurred(.success)
         }
+//        var ids: [String] = []
+//        for id in IconManager.iconMapN.keys
+//        {
+//            ids.append(id)
+//        }
+//        iconView.setImage(systemeName: IconManager.iconMapN[ids[index]] ?? "questionmark")
+//        print(ids[index])
+//        index += 1
     }
 }
 

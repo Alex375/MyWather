@@ -16,7 +16,7 @@ class TemperatureGroup: UIView {
     }()
     
     lazy var feelsLikeInfo: TempLabel = {
-        let lbl = TempLabel(name: "Feels like")
+        let lbl = TempLabel(name: "main.feels_like".localized)
         lbl.setType(TempLabel.type.Big)
         return lbl
     }()

@@ -79,14 +79,14 @@ class SunGroup: UIView {
     }
     
     
-    func populateLabels(sunrise: Double, sunset: Double)
+    func populateLabels(sunrise: Double, sunset: Double, offset: Double)
     {
-        let sunsetDate = Date(timeIntervalSince1970: sunset)
-        let sunriseDate = Date(timeIntervalSince1970: sunrise)
+        let sunsetDate = Date(timeIntervalSince1970: sunset + offset)
+        let sunriseDate = Date(timeIntervalSince1970: sunrise + offset)
         
         
         let dateFormatter = DateFormatter()
-        dateFormatter.timeZone = TimeZone(abbreviation: TimeZone.current.abbreviation() ?? "GMT")
+        dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
         dateFormatter.locale = NSLocale.current
         dateFormatter.dateFormat = "HH:mm"
         

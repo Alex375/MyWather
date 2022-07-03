@@ -84,7 +84,7 @@ struct WeatherModel: Decodable
     let wind: WindModel
     let clouds: CloudModel
     let sys: SysModel
-    let timezone: Int
+    let timezone: Double
     let name: String
     let rain: RainModel?
     let snow: SnowModel?

@@ -32,7 +32,26 @@ class IconView: UIView {
         detailConstrains.append(image.leading(to: self, offset: 5, isActive: false))
         
         image.centerYToSuperview()
-        image.heightAnchor.constraint(equalTo: image.widthAnchor, multiplier: 0.92).isActive = true
+        image.heightAnchor.constraint(equalTo: image.widthAnchor, multiplier: 1).isActive = true
+        image.contentMode = .scaleAspectFit
+    }
+    
+    init(small: Bool)
+    {
+        super.init(frame: .zero)
+        backgroundColor = .systemBlue
+        addSubview(image)
+        
+        
+        defaultConstrains.append(image.leading(to: self, offset: 15, isActive: !small))
+        defaultConstrains.append(image.trailing(to: self, offset: -15, isActive: !small))
+        
+        detailConstrains.append(image.trailing(to: self, offset: -5, isActive: small))
+        detailConstrains.append(image.leading(to: self, offset: 5, isActive: small))
+        
+        image.centerYToSuperview()
+        image.heightAnchor.constraint(equalTo: image.widthAnchor, multiplier: 1).isActive = true
+        image.contentMode = .scaleAspectFit
     }
     
     required init?(coder: NSCoder) {
@@ -41,7 +60,7 @@ class IconView: UIView {
     
     func setImage(systemeName: String)
     {
-        self.image.image = UIImage(systemName: systemeName)?
+        self.image.image = (UIImage(systemName: systemeName) ?? UIImage(systemName: "questionmark")!)
             .withRenderingMode(.alwaysOriginal)
     }
     
@@ -76,6 +95,14 @@ class IconView: UIView {
             "50n": "cloud.fog.fill",
         ]
         setImage(systemeName: transformer[apiName] ?? "sun.max.fill")
+    }
+    
+    
+    func setImage(weather: SubWeatherModel)
+    {
+        image.image = IconManager.getIcon(weather: weather)
+            .withRenderingMode(.alwaysOriginal)
+        backgroundColor = IconManager.getColor(weather: weather)
     }
     
 }

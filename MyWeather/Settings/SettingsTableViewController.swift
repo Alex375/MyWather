@@ -9,6 +9,8 @@ import UIKit
 
 class SettingsTableViewController: UITableViewController {
 
+    var target: ViewController?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -19,7 +21,7 @@ class SettingsTableViewController: UITableViewController {
         // self.navigationItem.rightBarButtonItem = self.editButtonItem
         self.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .close, target: self, action: #selector(close))
         
-        navigationItem.title = "Settings"
+        navigationItem.title = "settings.title".localized
         navigationController?.navigationBar.prefersLargeTitles = true
         
         
@@ -50,14 +52,27 @@ class SettingsTableViewController: UITableViewController {
             cell.control.insertSegment(withTitle: "Celsius", at: 0, animated: false)
             cell.control.insertSegment(withTitle: "Fahrenheit", at: 1, animated: false)
             cell.control.insertSegment(withTitle: "Kelvin", at: 2, animated: false)
+            cell.control.selectedSegmentIndex = UserDefaults
+                .standard
+                .integer(forKey: Settings.tempUnit.rawValue)
+            cell.control.addTarget(
+                self,
+                action: #selector(tempChanged),
+                for: .valueChanged)
         }
         if indexPath.row == 1
         {
-            cell.control.insertSegment(withTitle: "Meters/sec", at: 0, animated: false)
-            cell.control.insertSegment(withTitle: "mph", at: 1, animated: false)
-            cell.control.insertSegment(withTitle: "kmh", at: 2, animated: false)
-            cell.control.insertSegment(withTitle: "Knots", at: 3, animated: false)
-            
+            cell.control.insertSegment(withTitle: "mps.full".localized, at: 0, animated: false)
+            cell.control.insertSegment(withTitle: "mph.full".localized, at: 1, animated: false)
+            cell.control.insertSegment(withTitle: "kph.full".localized, at: 2, animated: false)
+            cell.control.insertSegment(withTitle: "knots.full".localized, at: 3, animated: false)
+            cell.control.selectedSegmentIndex = UserDefaults
+                .standard
+                .integer(forKey: Settings.speedUnit.rawValue)
+            cell.control.addTarget(
+                self,
+                action: #selector(speedChanged),
+                for: .valueChanged)
         }
         
 
@@ -67,7 +82,7 @@ class SettingsTableViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         switch section
         {
-        case 0: return "Units"
+        case 0: return "setting.units".localized
         default: return nil
         }
     }
@@ -76,6 +91,29 @@ class SettingsTableViewController: UITableViewController {
     @objc func close(sender: Any?)
     {
         self.dismiss(animated: true)
+    }
+    
+    @objc func speedChanged(sender: UISegmentedControl)
+    {
+        UserDefaults
+            .standard
+            .set(sender.selectedSegmentIndex, forKey: Settings.speedUnit.rawValue)
+        guard let target = target else {
+            return
+        }
+        target.loadAndPopulate()
+    }
+    
+    
+    @objc func tempChanged(sender: UISegmentedControl)
+    {
+        UserDefaults
+            .standard
+            .set(sender.selectedSegmentIndex, forKey: Settings.tempUnit.rawValue)
+        guard let target = target else {
+            return
+        }
+        target.loadAndPopulate()
     }
 
 }

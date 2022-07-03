@@ -10,7 +10,7 @@ import UIKit
 class OtherInfoGroup: UIView {
 
     lazy var humidityLabel: TempLabel = {
-        let lbl = TempLabel(name: "Humidity")
+        let lbl = TempLabel(name: "main.humidity".localized)
         lbl.nameLabel.trailing(to: lbl)
         lbl.infoLabel.trailing(to: lbl)
         lbl.info = "-"
@@ -18,7 +18,7 @@ class OtherInfoGroup: UIView {
     }()
     
     lazy var pressureLabel: TempLabel = {
-        let lbl = TempLabel(name: "Pressure")
+        let lbl = TempLabel(name: "main.pressure".localized)
         lbl.nameLabel.trailing(to: lbl)
         lbl.infoLabel.trailing(to: lbl)
         lbl.info = "-"

@@ -51,3 +51,15 @@
 "main.lastHour"="Dernière heure";
 "main.last3Hour"="Dernière 3h";
 "api.lang"="fr";
+
+"main.weather"="Météo";
+"main.rain"="Pluie";
+"main.wind"="Vent";
+"main.sunset"="Coucher";
+"main.sunrise"="Lever";
+
+"clouds_new"="Nuages";
+"precipitation_new"="Precipitations";
+"pressure_new"="Pression";
+"wind_new"="Vent";
+"temp_new"="Temperature";

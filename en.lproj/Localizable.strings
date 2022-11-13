@@ -52,3 +52,16 @@
 "main.lastHour"="Last hour";
 "main.last3Hour"="Last 3h";
 "api.lang"="en";
+
+"main.weather"="Weather";
+"main.rain"="Rain";
+"main.wind"="Wind";
+"main.sunset"="Sunset";
+"main.sunrise"="Sunrise";
+
+
+"clouds_new"="Clouds";
+"precipitation_new"="Precipitations";
+"pressure_new"="Pressure";
+"wind_new"="Wind";
+"temp_new"="Temperature";
